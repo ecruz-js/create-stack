@@ -13,7 +13,7 @@ program
   .description('Scaffold projects with pre-implemented architecture patterns')
   .version('0.1.0')
   .argument('[project-name]', 'Name of the project')
-  .option('--stack <type>', 'Stack: react-spa | nextjs | node-express | node-hono')
+  .option('--stack <type>', 'Stack: react-spa | nextjs | node-express | node-hono | vanilla')
   .option('--features <list>', 'Comma-separated: docker,cicd,linting,auth')
   .option('--list', 'List available stacks and features')
   .option('--dry-run', 'Show what would be created without creating files')

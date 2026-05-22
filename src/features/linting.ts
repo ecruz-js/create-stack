@@ -30,15 +30,25 @@ export async function applyLinting(config: ScaffoldConfig): Promise<void> {
     if (await fs.pathExists(pkgPath)) {
       const pkg = await fs.readJson(pkgPath);
       pkg.scripts = pkg.scripts || {};
-      pkg.scripts.lint = 'eslint src --ext .ts,.tsx';
-      pkg.scripts['lint:fix'] = 'eslint src --ext .ts,.tsx --fix';
-      pkg.scripts.format = 'prettier --write "src/**/*.{ts,tsx,json,css}"';
+      const isVanilla = config.stack === 'vanilla';
+      const ext = isVanilla ? '.js' : '.ts,.tsx';
+      const glob = isVanilla ? 'js/**/*.js' : 'src/**/*.{ts,tsx}';
+      const lintGlob = isVanilla ? '*.js' : '*.{ts,tsx}';
+      pkg.scripts.lint = `eslint ${isVanilla ? 'js' : 'src'} --ext ${ext}`;
+      pkg.scripts['lint:fix'] = `eslint ${isVanilla ? 'js' : 'src'} --ext ${ext} --fix`;
+      pkg.scripts.format = `prettier --write "${glob}"`;
       pkg.scripts.prepare = 'husky install';
 
       pkg['lint-staged'] = {
-        '*.{ts,tsx}': ['eslint --fix', 'prettier --write'],
+        [lintGlob]: ['eslint --fix', 'prettier --write'],
         '*.{json,css,md}': ['prettier --write'],
       };
+
+      pkg.devDependencies = pkg.devDependencies || {};
+      pkg.devDependencies.eslint = '^9.0.0';
+      pkg.devDependencies.prettier = '^3.3.0';
+      pkg.devDependencies.husky = '^9.1.0';
+      pkg.devDependencies['lint-staged'] = '^15.2.0';
 
       await fs.writeJson(pkgPath, pkg, { spaces: 2 });
     }

@@ -23,6 +23,11 @@ export const STACKS: Record<StackChoice, StackInfo> = {
     description: 'Clean Architecture with Hono, Repository pattern',
     repo: `${GITHUB_ORG}/node-api-hono`,
   },
+  'vanilla': {
+    name: 'Vanilla (HTML/CSS/JS)',
+    description: 'Static site with vanilla HTML, CSS, and JavaScript',
+    repo: `${GITHUB_ORG}/vanilla-clean`,
+  },
 };
 
 export const FEATURES: Record<FeatureChoice, FeatureInfo> = {

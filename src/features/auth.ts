@@ -13,6 +13,11 @@ export async function applyAuth(config: ScaffoldConfig): Promise<void> {
   spinner.start();
 
   try {
+    if (config.stack === 'vanilla') {
+      spinner.warn('Auth is not available for vanilla stack');
+      return;
+    }
+
     const plop = await nodePlop(plopfilePath);
     const generator = plop.getGenerator('auth');
     const results = await generator.runActions({

@@ -12,9 +12,10 @@ export default function (plop) {
       const isNode = data.stack === 'node-express' || data.stack === 'node-hono';
 
       let dockerfileTemplate;
-      if (data.stack === 'react-spa') dockerfileTemplate = 'docker/Dockerfile-react-spa.hbs';
-      else if (data.stack === 'nextjs') dockerfileTemplate = 'docker/Dockerfile-nextjs.hbs';
-      else dockerfileTemplate = 'docker/Dockerfile-node.hbs';
+      if (data.stack === 'vanilla') dockerfileTemplate = 'plop-templates/docker/Dockerfile-vanilla.hbs';
+      else if (data.stack === 'react-spa') dockerfileTemplate = 'plop-templates/docker/Dockerfile-react-spa.hbs';
+      else if (data.stack === 'nextjs') dockerfileTemplate = 'plop-templates/docker/Dockerfile-nextjs.hbs';
+      else dockerfileTemplate = 'plop-templates/docker/Dockerfile-node.hbs';
 
       actions.push({
         type: 'add',
@@ -25,13 +26,13 @@ export default function (plop) {
       actions.push({
         type: 'add',
         path: '{{targetDir}}/docker-compose.yml',
-        templateFile: isNode ? 'docker/docker-compose-with-db.hbs' : 'docker/docker-compose.hbs',
+        templateFile: isNode ? 'plop-templates/docker/docker-compose-with-db.hbs' : 'plop-templates/docker/docker-compose.hbs',
       });
 
       actions.push({
         type: 'add',
         path: '{{targetDir}}/.dockerignore',
-        templateFile: 'docker/dockerignore.hbs',
+        templateFile: 'plop-templates/docker/dockerignore.hbs',
       });
 
       return actions;
@@ -46,7 +47,7 @@ export default function (plop) {
       {
         type: 'add',
         path: '{{targetDir}}/.github/workflows/ci.yml',
-        templateFile: 'cicd/github-actions.yml.hbs',
+        templateFile: 'plop-templates/cicd/github-actions.yml.hbs',
       },
     ],
   });
@@ -57,17 +58,15 @@ export default function (plop) {
     prompts: [],
     actions: (data) => {
       const actions = [];
-      const isReact = data.stack === 'react-spa';
-      const isNext = data.stack === 'nextjs';
-
       let eslintTemplate;
-      if (isReact) eslintTemplate = 'linting/eslintrc-react.hbs';
-      else if (isNext) eslintTemplate = 'linting/eslintrc-next.hbs';
-      else eslintTemplate = 'linting/eslintrc-node.hbs';
+      if (data.stack === 'react-spa') eslintTemplate = 'plop-templates/linting/eslintrc-react.hbs';
+      else if (data.stack === 'nextjs') eslintTemplate = 'plop-templates/linting/eslintrc-next.hbs';
+      else if (data.stack === 'vanilla') eslintTemplate = 'plop-templates/linting/eslintrc-vanilla.hbs';
+      else eslintTemplate = 'plop-templates/linting/eslintrc-node.hbs';
 
       actions.push({ type: 'add', path: '{{targetDir}}/.eslintrc.cjs', templateFile: eslintTemplate });
-      actions.push({ type: 'add', path: '{{targetDir}}/.prettierrc', templateFile: 'linting/prettierrc.hbs' });
-      actions.push({ type: 'add', path: '{{targetDir}}/.husky/pre-commit', templateFile: 'linting/husky-pre-commit.hbs' });
+      actions.push({ type: 'add', path: '{{targetDir}}/.prettierrc', templateFile: 'plop-templates/linting/prettierrc.hbs' });
+      actions.push({ type: 'add', path: '{{targetDir}}/.husky/pre-commit', templateFile: 'plop-templates/linting/husky-pre-commit.hbs' });
 
       return actions;
     },
@@ -80,30 +79,30 @@ export default function (plop) {
     actions: (data) => {
       const actions = [];
 
-      actions.push({ type: 'add', path: '{{targetDir}}/src/features/auth/types.ts', templateFile: 'auth/shared/types.ts.hbs' });
-      actions.push({ type: 'add', path: '{{targetDir}}/src/features/auth/constants.ts', templateFile: 'auth/shared/constants.ts.hbs' });
+      actions.push({ type: 'add', path: '{{targetDir}}/src/features/auth/types.ts', templateFile: 'plop-templates/auth/shared/types.ts.hbs' });
+      actions.push({ type: 'add', path: '{{targetDir}}/src/features/auth/constants.ts', templateFile: 'plop-templates/auth/shared/constants.ts.hbs' });
 
       if (data.stack === 'react-spa') {
         actions.push(
-          { type: 'add', path: '{{targetDir}}/src/features/auth/AuthContext.tsx', templateFile: 'auth/react-spa/AuthContext.tsx.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/useAuth.ts', templateFile: 'auth/react-spa/useAuth.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/ProtectedRoute.tsx', templateFile: 'auth/react-spa/ProtectedRoute.tsx.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/LoginPage.tsx', templateFile: 'auth/react-spa/LoginPage.tsx.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/RegisterPage.tsx', templateFile: 'auth/react-spa/RegisterPage.tsx.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/AuthContext.tsx', templateFile: 'plop-templates/auth/react-spa/AuthContext.tsx.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/useAuth.ts', templateFile: 'plop-templates/auth/react-spa/useAuth.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/ProtectedRoute.tsx', templateFile: 'plop-templates/auth/react-spa/ProtectedRoute.tsx.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/LoginPage.tsx', templateFile: 'plop-templates/auth/react-spa/LoginPage.tsx.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/RegisterPage.tsx', templateFile: 'plop-templates/auth/react-spa/RegisterPage.tsx.hbs' },
         );
       } else if (data.stack === 'nextjs') {
         actions.push(
-          { type: 'add', path: '{{targetDir}}/src/features/auth/middleware.ts', templateFile: 'auth/nextjs/middleware.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/actions.ts', templateFile: 'auth/nextjs/auth-actions.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/AuthProvider.tsx', templateFile: 'auth/nextjs/AuthProvider.tsx.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/middleware.ts', templateFile: 'plop-templates/auth/nextjs/middleware.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/actions.ts', templateFile: 'plop-templates/auth/nextjs/auth-actions.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/AuthProvider.tsx', templateFile: 'plop-templates/auth/nextjs/AuthProvider.tsx.hbs' },
         );
       } else {
         actions.push(
-          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.controller.ts', templateFile: 'auth/node/auth.controller.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.service.ts', templateFile: 'auth/node/auth.service.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.middleware.ts', templateFile: 'auth/node/auth.middleware.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.routes.ts', templateFile: 'auth/node/auth.routes.ts.hbs' },
-          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.dto.ts', templateFile: 'auth/node/auth.dto.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.controller.ts', templateFile: 'plop-templates/auth/node/auth.controller.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.service.ts', templateFile: 'plop-templates/auth/node/auth.service.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.middleware.ts', templateFile: 'plop-templates/auth/node/auth.middleware.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.routes.ts', templateFile: 'plop-templates/auth/node/auth.routes.ts.hbs' },
+          { type: 'add', path: '{{targetDir}}/src/features/auth/auth.dto.ts', templateFile: 'plop-templates/auth/node/auth.dto.ts.hbs' },
         );
       }
 

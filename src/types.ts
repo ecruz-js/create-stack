@@ -1,4 +1,4 @@
-export type StackChoice = 'react-spa' | 'nextjs' | 'node-express' | 'node-hono';
+export type StackChoice = 'react-spa' | 'nextjs' | 'node-express' | 'node-hono' | 'vanilla';
 
 export type FeatureChoice = 'docker' | 'cicd' | 'linting' | 'auth';
 
