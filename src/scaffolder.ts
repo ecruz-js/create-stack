@@ -50,8 +50,34 @@ async function renameProject(config: ScaffoldConfig): Promise<void> {
 }
 
 export async function scaffold(config: ScaffoldConfig): Promise<void> {
-  await cloneTemplate(config);
-  await renameProject(config);
-  await applyFeatures(config);
-  await installDependencies(config.targetDir);
+  let cleanupNeeded = false;
+
+  const cleanup = async () => {
+    if (cleanupNeeded && (await fs.pathExists(config.targetDir))) {
+      await fs.remove(config.targetDir);
+      console.log('\n');
+      warn('Operation cancelled. Cleaned up.');
+    }
+    process.exit(0);
+  };
+
+  process.on('SIGINT', cleanup);
+  process.on('SIGTERM', cleanup);
+
+  try {
+    cleanupNeeded = true;
+    await cloneTemplate(config);
+    await renameProject(config);
+    await applyFeatures(config);
+    cleanupNeeded = false;
+    await installDependencies(config.targetDir);
+  } catch (err) {
+    if (cleanupNeeded && (await fs.pathExists(config.targetDir))) {
+      await fs.remove(config.targetDir);
+    }
+    throw err;
+  } finally {
+    process.removeListener('SIGINT', cleanup);
+    process.removeListener('SIGTERM', cleanup);
+  }
 }
