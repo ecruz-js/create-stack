@@ -1,0 +1,45 @@
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import { AUTH_CONFIG } from './constants';
+import type { TokenPayload } from './types';
+import type { Role } from './types';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: TokenPayload;
+    }
+  }
+}
+
+export function authenticate(req: Request, res: Response, next: NextFunction): void {
+  const token = req.cookies?.access_token;
+  if (!token) {
+    res.status(401).json({ message: 'Authentication required' });
+    return;
+  }
+
+  try {
+    const payload = jwt.verify(token, AUTH_CONFIG.accessTokenSecret) as TokenPayload;
+    req.user = payload;
+    next();
+  } catch {
+    res.status(401).json({ message: 'Invalid or expired token' });
+  }
+}
+
+export function authorize(...roles: Role[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      res.status(401).json({ message: 'Authentication required' });
+      return;
+    }
+
+    if (roles.length > 0 && !roles.includes(req.user.role)) {
+      res.status(403).json({ message: 'Insufficient permissions' });
+      return;
+    }
+
+    next();
+  };
+}

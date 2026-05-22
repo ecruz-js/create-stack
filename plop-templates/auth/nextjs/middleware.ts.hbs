@@ -1,0 +1,32 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
+
+const protectedPaths = ['/dashboard', '/profile', '/settings'];
+const authPaths = ['/login', '/register'];
+
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('access_token')?.value;
+  const isProtected = protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+  const isAuthPage = authPaths.some((p) => request.nextUrl.pathname.startsWith(p));
+
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  if (isAuthPage && token) {
+    try {
+      const secret = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET || 'change-me-access-secret');
+      await jwtVerify(token, secret);
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    } catch {
+      // Token invalid, let them access auth pages
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*', '/login', '/register'],
+};

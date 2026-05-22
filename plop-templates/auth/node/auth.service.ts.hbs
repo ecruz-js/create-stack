@@ -1,0 +1,65 @@
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { AUTH_CONFIG } from './constants';
+import type { TokenPayload, AuthTokens, User } from './types';
+import { Role } from './types';
+import type { LoginDto, RegisterDto } from './auth.dto';
+
+// TODO: Replace with your actual database
+const users: Array<User & { passwordHash: string }> = [];
+
+export class AuthService {
+  async register(data: RegisterDto): Promise<AuthTokens> {
+    const existing = users.find((u) => u.email === data.email);
+    if (existing) throw new Error('User already exists');
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+    const user: User & { passwordHash: string } = {
+      id: crypto.randomUUID(),
+      email: data.email,
+      role: Role.USER,
+      passwordHash,
+    };
+    users.push(user);
+
+    return this.generateTokens(user);
+  }
+
+  async login(data: LoginDto): Promise<AuthTokens> {
+    const user = users.find((u) => u.email === data.email);
+    if (!user) throw new Error('Invalid credentials');
+
+    const valid = await bcrypt.compare(data.password, user.passwordHash);
+    if (!valid) throw new Error('Invalid credentials');
+
+    return this.generateTokens(user);
+  }
+
+  async refreshTokens(refreshToken: string): Promise<AuthTokens> {
+    const payload = jwt.verify(refreshToken, AUTH_CONFIG.refreshTokenSecret) as TokenPayload;
+    const user = users.find((u) => u.id === payload.userId);
+    if (!user) throw new Error('User not found');
+
+    return this.generateTokens(user);
+  }
+
+  private generateTokens(user: User): AuthTokens {
+    const payload: TokenPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(payload, AUTH_CONFIG.accessTokenSecret, {
+      expiresIn: AUTH_CONFIG.accessTokenExpiry,
+    });
+
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      AUTH_CONFIG.refreshTokenSecret,
+      { expiresIn: AUTH_CONFIG.refreshTokenExpiry },
+    );
+
+    return { accessToken, refreshToken };
+  }
+}
