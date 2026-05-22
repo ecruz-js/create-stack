@@ -14,7 +14,7 @@ program
   .version('0.1.0')
   .argument('[project-name]', 'Name of the project')
   .option('--stack <type>', 'Stack: react-spa | nextjs | node-express | node-hono | vanilla')
-  .option('--features <list>', 'Comma-separated: docker,cicd,linting,auth')
+  .option('--features <list>', 'Comma-separated: docker,cicd,linting,auth (use "none" for no features)')
   .option('--list', 'List available stacks and features')
   .option('--dry-run', 'Show what would be created without creating files')
   .action(async (projectName: string | undefined, options) => {
@@ -36,15 +36,21 @@ program
         defaults.stack = options.stack as StackChoice;
       }
       if (options.features) {
-        const feats = options.features.split(',') as FeatureChoice[];
-        const validFeatures = Object.keys(FEATURES);
-        for (const f of feats) {
-          if (!validFeatures.includes(f)) {
-            error(`Unknown feature: "${f}". Run create-stack --list to see options.`);
-            process.exit(1);
+        if (options.features === 'none') {
+          defaults.features = [];
+        } else {
+          const feats = options.features.split(',') as FeatureChoice[];
+          const validFeatures = Object.keys(FEATURES);
+          for (const f of feats) {
+            if (!validFeatures.includes(f)) {
+              error(`Unknown feature: "${f}". Run create-stack --list to see options.`);
+              process.exit(1);
+            }
           }
+          defaults.features = feats;
         }
-        defaults.features = feats;
+      } else if (projectName && options.stack) {
+        defaults.features = [];
       }
 
       const config = await collectAnswers(defaults);

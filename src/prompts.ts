@@ -46,7 +46,7 @@ export async function collectAnswers(
   const features =
     defaults.features ??
     (await checkbox<FeatureChoice>({
-      message: 'Select optional features:',
+      message: 'Select optional features (press Enter to skip):',
       choices: getFeatureChoices(),
     }));
 
