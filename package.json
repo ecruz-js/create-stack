@@ -1,0 +1,45 @@
+{
+  "name": "create-stack",
+  "version": "0.1.0",
+  "description": "Scaffold projects across multiple stacks with pre-implemented architecture patterns",
+  "type": "module",
+  "bin": {
+    "create-stack": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "scaffolding",
+    "boilerplate",
+    "cli",
+    "create-app",
+    "architecture"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "plop-templates",
+    "plopfile.js"
+  ],
+  "dependencies": {
+    "@inquirer/prompts": "^8.4.3",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
+    "degit": "^3.0.0",
+    "fs-extra": "^11.3.5",
+    "node-plop": "^0.32.3",
+    "ora": "^9.4.0"
+  },
+  "devDependencies": {
+    "@types/degit": "^2.8.6",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^25.9.1",
+    "typescript": "^6.0.3"
+  }
+}
